@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="mapper.board">
+	<insert id="insertBoard" parameterType="board">
+		insert into kicboard values (kicboardseq.nextval,#{name},#{pass},#{subject},#{content},#{file1},sysdate,0,#{boardid})
+	</insert>
+	
+	<insert id="insertComment" parameterType="map">
+		insert into boardcomment values (boardcomseq.nextval,#{boardnum},#{comment},sysdate)
+	</insert>
+	
+	<select id="boardList" parameterType="map" resultType="board">
+		select * from
+			(select rownum rnum, a.* 
+			 from (
+			 	select * 
+			 	from kicboard 
+			 	where boardid = #{boardid} 
+			 	order by num desc) 
+			 a) 
+		where rnum BETWEEN #{start} and #{end}
+	</select>
+	
+	<select id="boardCount" parameterType="string" resultType="int">
+		select nvl(count(*),0) from kicboard where boardid = #{boardid}
+	</select>
+	
+	<select id="getCommentCount" parameterType="int" resultType="int">
+		select nvl(count(*),0) from boardcomment where num = #{num}
+	</select>
+	
+	<select id="commentList" parameterType="int" resultType="comment">
+		select * from boardcomment where num = #{num} order by regdate desc
+	</select>
+	
+	<select id="getBoard" parameterType="int" resultType="board">
+		select * from kicboard where num = #{num}
+	</select>
+	
+	<update id="addReadCount" parameterType="int">
+		update kicboard set readcnt=readcnt+1 where num=#{num}
+	</update>
+	
+	<update id="boardUpdate" parameterType="board">
+		update kicboard set name=#{name}, subject=#{subject}, content=#{content}, file1=#{file1} where num=#{num}
+	</update>
+	
+	<delete id="boardDelete" parameterType="int">
+		delete from kicboard where num = #{num}
+	</delete>
+</mapper>
